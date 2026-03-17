@@ -1,19 +1,47 @@
-here<div style="position:fixed; bottom:0; width:100%; background:#333; color:#fff; padding:5px;">
-  <input id="chatInput" type="text" placeholder="Mesaj yaz..." style="width:80%;">
+<!DOCTYPE html>
+<html>
+<head>
+  <title>War Game Chat Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body { margin:0; overflow:hidden; font-family:sans-serif; background:#222; color:white; }
+    canvas { display:block; }
+    #chat { position: fixed; bottom:0; left:0; width:100%; background:#111; padding:5px; }
+    #chatLog { height:120px; overflow-y:auto; background:#000; padding:5px; margin-top:5px; }
+    #chat input { width:75%; }
+    #chat button { width:20%; }
+  </style>
+</head>
+<body>
+
+<div id="chat">
+  <input id="chatInput" type="text" placeholder="Mesaj yaz..." />
   <button id="sendBtn">Gönder</button>
-  <div id="chatLog" style="height:100px; overflow-y:auto; background:#111; margin-top:5px; padding:5px;"></div>
+  <div id="chatLog"></div>
 </div>
+
+<script src="game.js"></script>
 
 <script>
 const input = document.getElementById("chatInput");
 const btn = document.getElementById("sendBtn");
 const log = document.getElementById("chatLog");
 
+// Socket.IO
+const socket = io(); // Aynı domain üzerinden
+
 btn.addEventListener("click", () => {
-  const msg = input.value;
-  if(msg) {
+  const msg = input.value.trim();
+  if(msg){
     socket.emit("chatMessage", msg);
     input.value = "";
+  }
+});
+
+input.addEventListener("keypress", (e) => {
+  if(e.key === "Enter"){
+    btn.click();
   }
 });
 
@@ -24,3 +52,6 @@ socket.on("chatMessage", (data) => {
   log.scrollTop = log.scrollHeight;
 });
 </script>
+
+</body>
+</html>
