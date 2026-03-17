@@ -1,35 +1,29 @@
-// server.js
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
-
-// WebSocket server, tüm domainlere izin (Vercel + mobil vs)
 const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
+  cors: { origin: "*" },
 });
 
-// Oyun durumunu saklayacağız
+// client klasörünü serve et
+app.use(express.static(path.join(__dirname, "client")));
+
 let players = {};
 
-// Oyuncu bağlanınca
 io.on("connection", (socket) => {
   console.log("Oyuncu bağlandı:", socket.id);
 
-  // Rastgele başlangıç koordinatları
   players[socket.id] = {
     x: Math.random() * 500,
-    y: Math.random() * 500,
+    y: Math.random() * 500
   };
 
-  // Tüm oyunculara güncel oyuncu listesi gönder
   io.emit("updatePlayers", players);
 
-  // Oyuncu hareket edince
   socket.on("move", (data) => {
     if (players[socket.id]) {
       players[socket.id].x = data.x;
@@ -38,19 +32,17 @@ io.on("connection", (socket) => {
     io.emit("updatePlayers", players);
   });
 
-  // Oyuncu disconnect olunca
   socket.on("disconnect", () => {
     delete players[socket.id];
     io.emit("updatePlayers", players);
   });
 });
 
-// Opsiyonel: / açınca basit mesaj
+// / açılınca index.html göster
 app.get("/", (req, res) => {
-  res.send("Server çalışıyor!");
+  res.sendFile(path.join(__dirname, "client/index.html"));
 });
 
-// Server portu (Render bunu otomatik yönlendiriyor)
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server ${PORT} portunda çalışıyor`);
