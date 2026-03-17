@@ -1,17 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>War Game</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
-  </style>
-</head>
-<body>
+here<div style="position:fixed; bottom:0; width:100%; background:#333; color:#fff; padding:5px;">
+  <input id="chatInput" type="text" placeholder="Mesaj yaz..." style="width:80%;">
+  <button id="sendBtn">Gönder</button>
+  <div id="chatLog" style="height:100px; overflow-y:auto; background:#111; margin-top:5px; padding:5px;"></div>
+</div>
 
-<script src="game.js"></script>
+<script>
+const input = document.getElementById("chatInput");
+const btn = document.getElementById("sendBtn");
+const log = document.getElementById("chatLog");
 
-</body>
-</html>
+btn.addEventListener("click", () => {
+  const msg = input.value;
+  if(msg) {
+    socket.emit("chatMessage", msg);
+    input.value = "";
+  }
+});
+
+socket.on("chatMessage", (data) => {
+  const el = document.createElement("div");
+  el.textContent = `${data.id}: ${data.message}`;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+});
+</script>
